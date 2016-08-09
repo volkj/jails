@@ -16,7 +16,12 @@ minetest.register_chatcommand("jail", {
 	privs = {jailer=true},
 	func = function(name, param)
 		if param == "" then
-			return jails:jail(name)
+			--
+			-- Default mod's behavior puts the invoking player in jail
+			-- Changed to show a message, swap the comment statements to enable default behavior
+			--
+			-- return jails:jail(name)
+			return false, "This would have jailed you. Be careful next time."
 		end
 		local playerName, jailName = param:match("^(%S+)%s("..jailNameMatch..")$")
 		if playerName then
