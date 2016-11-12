@@ -2,8 +2,6 @@
 -- Jail mod by ShadowNinja
 --]]
 
-local free_jailed_player_on_timeout = false
-
 jails = {
 	jails = {},
 	filename = minetest.get_worldpath() .. "/jails.lua",
@@ -37,12 +35,8 @@ minetest.register_globalstep(function(dtime)
 	end
 	stepTime = 0
 	for _, player in pairs(minetest.get_connected_players()) do
-		if ( free_jailed_player_on_timeout == true ) then
-			jails:unjail(player)	
-		end
 		keepInJail(player)
 	end
 end)
 
 jails:load()
-
