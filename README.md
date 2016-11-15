@@ -123,3 +123,13 @@ Variables are documented in the format `variableName = defaultValue`.
 
   * `jails.default` - The name of the default jail.  Read-only.
 
+Datastorage
+-----------
+
+#### *Currently unavailable - WIP*
+
+If datastorage mod is installed, jailed player records will be kept in a player-related file.
+
+Data to be saved: timestamp / jailer name / reason of jailing / number of arrests / sentence time
+
+Will also need an extension of jails API

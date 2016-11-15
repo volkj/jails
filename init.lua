@@ -1,6 +1,9 @@
 --[[
 -- Jail mod by ShadowNinja
+-- Datastorage support added by Volkj
 --]]
+
+local is_datastorage_available = minetest.get_modpath( "datastorage" ) and true
 
 jails = {
 	jails = {},
@@ -8,9 +11,34 @@ jails = {
 	default = 0,
 	announce = minetest.setting_getbool("jails.announce"),
 	teleportDelay = tonumber(minetest.setting_get("jails.teleport_delay")) or 30,
+	datastorage = is_datastorage_available,
+	sentences = {},		-- { jailer = { timestamp = 0, reason = "", severity = "" } }
+	sentence_lenght = {
+		jail 	= {	-- lenght of sentence in seconds
+			low  = 1800,	-- 30 min
+			mid  = 3600,	-- 1 h
+			high = 10800,	-- 3 h	
+		},
+		ban 	= {
+			low  = 86400,	-- 1 day
+			mid  = 604800,	-- 1 week
+			high = 2592000,	-- 1 month (30 days)
+		},	
+	},
 }
 
+if jails.datastorage then
+	minetest.debug("Jails: datastorage support enabled")
+--[[	sentences = {
+		timestamp = 0,	-- timestamp of the jail call
+		jailer = "",	-- player who call sentence
+		reason = "",	-- reason the player was jailed
+		severity = "",	-- low, mid, high
+--]]
+end
+
 local modPath = minetest.get_modpath(minetest.get_current_modname()) .. DIR_DELIM
+
 dofile(modPath .. "api.lua")
 dofile(modPath .. "commands.lua")
 
