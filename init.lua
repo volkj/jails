@@ -6,24 +6,24 @@
 local is_datastorage_available = minetest.get_modpath( "datastorage" ) and true
 
 jails = {
-	jails = {},
-	filename = minetest.get_worldpath() .. "/jails.lua",
-	default = 0,
-	announce = minetest.setting_getbool("jails.announce"),
-	teleportDelay = tonumber(minetest.setting_get("jails.teleport_delay")) or 30,
-	datastorage = is_datastorage_available,
+	jails 			= {},
+	filename 		= minetest.get_worldpath() .. DIR_DELIM .. "jails.lua",
+	default 		= 0,
+	announce 		= minetest.setting_getbool( "jails.announce" ),
+	teleportDelay 	= tonumber(minetest.setting_get( "jails.teleport_delay" ) ) or 30,
+	datastorage 	= is_datastorage_available,
 }
 
 if jails.datastorage then
 	minetest.debug("Jails: datastorage support enabled")
 	jails[ "sentences" ] = {}		-- { jailer = { timestamp = 0, reason = "", severity = "" } }
 	jails[ "sentence_lenght" ] = {
-		jail 	= {	-- lenght of sentence in seconds
+		jail = {	-- lenght of sentence in seconds
 			low  = 1800,	-- 30 min
 			mid  = 3600,	-- 1 h
 			high = 10800,	-- 3 h	
 		},
-		ban 	= {
+		ban	 = {
 			low  = 86400,	-- 1 day
 			mid  = 604800,	-- 1 week
 			high = 2592000,	-- 1 month (30 days)
