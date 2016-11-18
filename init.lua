@@ -12,8 +12,12 @@ jails = {
 	announce = minetest.setting_getbool("jails.announce"),
 	teleportDelay = tonumber(minetest.setting_get("jails.teleport_delay")) or 30,
 	datastorage = is_datastorage_available,
-	sentences = {},		-- { jailer = { timestamp = 0, reason = "", severity = "" } }
-	sentence_lenght = {
+}
+
+if jails.datastorage then
+	minetest.debug("Jails: datastorage support enabled")
+	jails[ "sentences" ] = {}		-- { jailer = { timestamp = 0, reason = "", severity = "" } }
+	jails[ "sentence_lenght" ] = {
 		jail 	= {	-- lenght of sentence in seconds
 			low  = 1800,	-- 30 min
 			mid  = 3600,	-- 1 h
@@ -24,17 +28,7 @@ jails = {
 			mid  = 604800,	-- 1 week
 			high = 2592000,	-- 1 month (30 days)
 		},	
-	},
-}
-
-if jails.datastorage then
-	minetest.debug("Jails: datastorage support enabled")
---[[	sentences = {
-		timestamp = 0,	-- timestamp of the jail call
-		jailer = "",	-- player who call sentence
-		reason = "",	-- reason the player was jailed
-		severity = "",	-- low, mid, high
---]]
+	}
 end
 
 local modPath = minetest.get_modpath(minetest.get_current_modname()) .. DIR_DELIM
