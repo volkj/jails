@@ -16,18 +16,18 @@ jails = {
 
 if jails.datastorage then
 	minetest.debug("Jails: datastorage support enabled")
-	jails[ "sentences" ] = {}		-- { jailer = { timestamp = 0, reason = "", severity = "" } }
+	jails[ "sentences" ] = {}		-- { { timestamp = os.time(), jailer = jailer_name , reason = "", severity = "low/mid/high/manual" } }
 	jails[ "sentence_lenght" ] = {
 		jail = {	-- lenght of sentence in seconds
 			low  = 1800,	-- 30 min
 			mid  = 3600,	-- 1 h
-			high = 10800,	-- 3 h	
+			high = 10800,	-- 3 h
 		},
 		ban	 = {
 			low  = 86400,	-- 1 day
 			mid  = 604800,	-- 1 week
 			high = 2592000,	-- 1 month (30 days)
-		},	
+		},
 	}
 end
 

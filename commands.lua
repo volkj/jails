@@ -9,35 +9,33 @@ local function normalizeJailName(jailName)
 	return jailName ~= "*" and jailName or jails.default
 end
 
-if not jails.datastorage then
-	minetest.register_chatcommand("jail", {
-		params = "[Player] [Jail]",
-		description = "Jail a player.",
-		privs = {jailer=true},
-		func = function(name, param)
-			if param == "" then
+-- keep jail cmd, only admin can use it with datastorage - it will set a manual flag
+minetest.register_chatcommand("jail", {
+	params = "[Player] [Jail]",
+	description = "Jail a player.",
+	privs = {jailer=true},
+	func = function(name, param)
+		if param == "" then
 				--
 				-- Default mod's behavior puts the invoking player in jail
 				-- Changed to show a message, swap the comment statements to enable default behavior
 				--
 				-- return jails:jail(name)
-				return false, "This would have jailed you. Be careful next time."
-			end
-			local playerName, jailName = param:match("^(%S+)%s("..jailNameMatch..")$")
-			if playerName then
-				return jails:jail(playerName, normalizeJailName(jailName))
-			elseif jails:playerExists(param) then
-				return jails:jail(param)
-			end
-			local jailName = normalizeJailName(param)
-			if jails.jails[jailName] then
-				return jails:jail(name, jailName)
-			end
-			return false, "That jail/player does not exist."
+			return false, "This would have jailed you. Be careful next time."
 		end
-	})
-end
-
+		local playerName, jailName = param:match("^(%S+)%s("..jailNameMatch..")$")
+		if playerName then
+			return jails:jail(playerName, normalizeJailName(jailName))
+		elseif jails:playerExists(param) then
+			return jails:jail(param)
+		end
+		local jailName = normalizeJailName(param)
+		if jails.jails[jailName] then
+			return jails:jail(name, jailName)
+		end
+		return false, "That jail/player does not exist."
+	end
+})
 
 minetest.register_chatcommand("unjail", {
 	params = "[Player]",
@@ -260,7 +258,7 @@ minetest.register_chatcommand("move_jail", {
 if jails.datastorage then
 	--TODO add an unjail cmd only admin/server priv can use
 --[[	minetest.register_chatcommand( "sentence", {
-	
+
 
 	--have to print a question, "Sentencing player to months weeks days hours minutes of jail, answer /sy to confirm"
 	--before giving another sentence, print back the one already not confirmed
@@ -268,24 +266,24 @@ if jails.datastorage then
 	-- if timestamp < 30 return same question
 
 	-- /sy cmd
-	-- 
+	--
 	-- if timestamp and timestamp > 30 return "no sentences in queue"
-	-- 
+	--
 
 	}) --]]
-	
+
 	minetest.register_chatcommand( "sy", {
 	params = "",
 	description = "Apply a pending sentence and jail the player",
 	privs = { jailer = true },
-	
-	
-	func = function( name ) 
+
+
+	func = function( name )
 		if not jails.sentences[ name ] then
 			return false, "Error: no sentence pending approval available"
 		end
-	
-	
+
+
 	end,
 	})
 end
