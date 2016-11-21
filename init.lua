@@ -16,7 +16,7 @@ jails = {
 
 if jails.datastorage then
 	minetest.debug("Jails: datastorage support enabled")
-	jails[ "sentences" ] = {}		-- { { timestamp = os.time(), jailer = jailer_name , reason = "", severity = "low/mid/high/manual" } }
+	jails[ "sentences" ] = {}		-- { jailer = { timestamp = os.time() , reason = "", severity = "low/mid/high/manual" } }
 	jails[ "sentence_lenght" ] = {
 		jail = {	-- lenght of sentence in seconds
 			low  = 1800,	-- 30 min
@@ -33,12 +33,12 @@ end
 
 local modPath = minetest.get_modpath(minetest.get_current_modname()) .. DIR_DELIM
 
-dofile(modPath .. "api.lua")
-dofile(modPath .. "commands.lua")
+dofile( modPath .. "api.lua" )
+dofile( modPath .. "commands.lua" )
 
-minetest.register_privilege("jailer", "Can jail players")
+minetest.register_privilege( "jailer", "Can jail players" )
 
-local function keepInJail(player)
+local function keepInJail( player )
 	local jailName, jail = jails:getJail(player:get_player_name())
 	if jail then
 		player:setpos(jail.pos)
@@ -46,8 +46,8 @@ local function keepInJail(player)
 	end
 end
 
-minetest.register_on_joinplayer(keepInJail)
-minetest.register_on_respawnplayer(keepInJail)
+minetest.register_on_joinplayer( keepInJail )
+minetest.register_on_respawnplayer( keepInJail )
 
 local stepTime = 0
 minetest.register_globalstep(function(dtime)

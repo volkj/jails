@@ -257,9 +257,43 @@ minetest.register_chatcommand("move_jail", {
 
 if jails.datastorage then
 	--TODO add an unjail cmd only admin/server priv can use
---[[	minetest.register_chatcommand( "sentence", {
-
-
+	--TODO implement with formspecs, can save some params = more fast to use
+	minetest.register_chatcommand( "sentence", {
+		params = "<player> <severity = low/mid/high> <reason>",
+		description = "Jail a player once provided a severity level and reason of jailing",
+		privs = { jailer = true } ,
+		func = function( name, param )
+			--check params
+			local error_usage = "Usage: /sentence <player> <severity = low/mid/high> <reason>"
+			if param == "" then
+				return false, error_usage
+			end
+			local parameters = {}
+			local parameters.player, parameters.severity, parameters.reason = string.match( string, "([a-z,A-Z,0-9]+) (%a+) (.+)" )
+			if ( not parameters.player ) or ( not parameters.severity ) or ( not parameter.reason ) then
+				return false, error_usage
+			elseif 	( not parameters.severity == "low" ) or
+					( not parameters.severity == "mid" ) or 
+					( not parameters.severity == "high" ) then
+						return false, "Error: severity must be low/mid/high"
+			end
+			minetest.get_player_by_name( parameters.player )
+			-- add sentence to jails.sentences table
+			jails.sentences[ name ] = { 
+				jailed = parameters.player,
+				timestamp = os.time(),
+				reason = parameters.reason, 
+				severity = parameters.severity,
+			}
+			-- ask to approve sentence
+			-- if affirmative, jail player and save the sentence in player's datastorage
+				-- clear jails.sentences table for the player
+			minetest.chat_send_player( name, "Jailing " .. parameters.player .. " with " .. parameters.severity
+										.. " sentence for reason: " .. parameters.reason )
+			minetest.chat_send_player( name, "Confirm sentence with /sy" )
+			return true
+					
+		end
 	--have to print a question, "Sentencing player to months weeks days hours minutes of jail, answer /sy to confirm"
 	--before giving another sentence, print back the one already not confirmed
 	-- table jails.accept_queue[ jailer ] = timestamp
@@ -270,7 +304,7 @@ if jails.datastorage then
 	-- if timestamp and timestamp > 30 return "no sentences in queue"
 	--
 
-	}) --]]
+	})
 
 	minetest.register_chatcommand( "sy", {
 	params = "",
@@ -282,7 +316,13 @@ if jails.datastorage then
 		if not jails.sentences[ name ] then
 			return false, "Error: no sentence pending approval available"
 		end
-
+		-- jail player
+		local player_record = datastorage.get( jails.sentences[ name ].jailed, "jails" )
+		table.insert( player_record[ "sentence_list" ], {
+												jailer = name, 
+												reason = jails.sentences[ name ].reason,
+												severity = jails.sentences[ name ].severity,
+												
 
 	end,
 	})
