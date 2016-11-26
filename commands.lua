@@ -273,16 +273,16 @@ if jails.datastorage then
 			if ( not parameters.player ) or ( not parameters.severity ) or ( not parameter.reason ) then
 				return false, error_usage
 			elseif 	( not parameters.severity == "low" ) or
-					( not parameters.severity == "mid" ) or 
+					( not parameters.severity == "mid" ) or
 					( not parameters.severity == "high" ) then
 						return false, "Error: severity must be low/mid/high"
 			end
-			minetest.get_player_by_name( parameters.player )
+			--minetest.get_player_by_name( parameters.player )
 			-- add sentence to jails.sentences table
-			jails.sentences[ name ] = { 
+			jails.sentences[ name ] = {
 				jailed = parameters.player,
 				timestamp = os.time(),
-				reason = parameters.reason, 
+				reason = parameters.reason,
 				severity = parameters.severity,
 			}
 			-- ask to approve sentence
@@ -292,7 +292,7 @@ if jails.datastorage then
 										.. " sentence for reason: " .. parameters.reason )
 			minetest.chat_send_player( name, "Confirm sentence with /sy" )
 			return true
-					
+
 		end
 	--have to print a question, "Sentencing player to months weeks days hours minutes of jail, answer /sy to confirm"
 	--before giving another sentence, print back the one already not confirmed
@@ -307,23 +307,52 @@ if jails.datastorage then
 	})
 
 	minetest.register_chatcommand( "sy", {
-	params = "",
-	description = "Apply a pending sentence and jail the player",
-	privs = { jailer = true },
+		params = "",
+		description = "Apply a pending sentence and jail the player",
+		privs = { jailer = true },
 
 
-	func = function( name )
-		if not jails.sentences[ name ] then
-			return false, "Error: no sentence pending approval available"
-		end
-		-- jail player
-		local player_record = datastorage.get( jails.sentences[ name ].jailed, "jails" )
-		table.insert( player_record[ "sentence_list" ], {
-												jailer = name, 
-												reason = jails.sentences[ name ].reason,
+		func = function( name )
+			if not jails.sentences[ name ] then
+				return false, "Error: no sentence pending approval available"
+			end
+			-- jail player
+			local player_record = datastorage.get( jails.sentences[ name ].jailed, "jails" )
+			local time_jailed = ( player_record[ "time_jailed" ] or 0 ) + 1
+			local total_jailed_time = player_record[ "total_jailed_time" ] or 0
+			if ( time_jailed > 10) or ( total_jailed_time > jails.sentence_length.ban.high * 2 ) then	-- swapped conditions, it was a race condition ( 5 evalued before 10)
+				player_record[ "definitive_ban" ] = true
+			elseif ( time_jailed > 5 ) or ( total_jailed_time > jails.sentence_length.jail.high * 2 ) then
+				player_record[ "is_bannable" ] = true
+			end
+
+			-- Get the time the player will be jailed
+			local sentence_length
+			if player_record[ "is_bannable" ] then	--TODO set is_bannable true on ban sentences (default: 2*high or more than 5 jails)
+				sentence_length = time_jailed * jails.sentence_length.ban[ jails.sentences[ name ].severity ]  --TODO add xban2 support
+			else
+				sentence_length = time_jailed * jails.sentence_length.jail[ jails.sentences[ name ].severity ]
+			end
+
+			local reason = jails.sentences[ name ].reason or "No reason given"
+
+			if jails.sentences[ name ].severity == "manual" then
+				reason = "Manually jailed by admin " .. name
+						.. " " .. reason
+			end
+
+			table.insert( player_record[ "sentence_list" ], time_jailed, {
+												jailer = name,
+												reason = reason,
 												severity = jails.sentences[ name ].severity,
-												
+												timestamp = jails.sentences[ name ].timestamp,
+												sentence_length = sentence_length,
+			}
 
+			player_record[ "sentence_length" ] = sentence_length
+			player_record[ "sentence_start_time" ] = jails.sentences[ name ].timestamp
+			player_record[ "total_jailed_time" ] = total_jailed_time + sentence_length
+			player_record[ "time_jailed" ] = time_jailed + 1
 	end,
 	})
 end

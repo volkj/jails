@@ -16,12 +16,16 @@ function jails:jail(playerName, jailName)
 	if player then
 		pos = player:getpos()
 		player:setpos(jail.pos)
+		--if datastorage
+		-- set player sentence_started = true
 		if jails.announce then
 			minetest.chat_send_all(playerName.." has been jailed!")
 		else
 			minetest.chat_send_player(playerName, "You have been jailed.")
 		end
 	else
+		--if datastorage
+		--set player sentence_started = false
 		message = "That player is not online right now."
 				.."  They will be jailed when they next connect."
 	end
