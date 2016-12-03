@@ -45,6 +45,18 @@ minetest.register_privilege( "jailer", "Can jail players" )
 local function keepInJail( player )
 	local jailName, jail = jails:getJail( player:get_player_name() )
 	if jail then
+		local player_record = datastorage.get( player:get_player_name() , "jails" )
+		if not player_record[ "sentence_started" ] then
+			player_record[ "sentence_started" ] = true
+			player_record[ "sentence_start_time" ] = os.time()
+		end
+		
+		if ( os.difftime( os.time(), player_record[ "sentence_start_time" ]) >  player_record[ "sentence_length" ] ) then
+			--unjail player
+		--	player_record[ "sentence_started" ] = false
+			jails:unjail( player:get_player_name() )
+			return true
+		end
 		player:setpos( jail.pos )
 		return true  -- Don't spawn normaly
 	end

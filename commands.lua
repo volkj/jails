@@ -269,8 +269,8 @@ if jails.datastorage then
 				return false, error_usage
 			end
 			local parameters = {}
-			local parameters.player, parameters.severity, parameters.reason = string.match( string, "([a-z,A-Z,0-9]+) (%a+) (.+)" )
-			if ( not parameters.player ) or ( not parameters.severity ) or ( not parameter.reason ) then
+			parameters["player"], parameters["severity"], parameters["reason"] = param:match( "([a-z,A-Z,0-9]+) (%a+) (.+)" )
+			if ( not parameters.player ) or ( not parameters.severity ) or ( not parameters.reason ) then
 				return false, error_usage
 			elseif 	( not parameters.severity == "low" ) or
 					( not parameters.severity == "mid" ) or
@@ -340,19 +340,33 @@ if jails.datastorage then
 				reason = "Manually jailed by admin " .. name
 						.. " " .. reason
 			end
-
-			table.insert( player_record[ "sentence_list" ], time_jailed, {
-												jailer = name,
-												reason = reason,
-												severity = jails.sentences[ name ].severity,
-												timestamp = jails.sentences[ name ].timestamp,
-												sentence_length = sentence_length,
-			}
+			if not player_record[ "sentence_list" ] then player_record[ "sentence_list" ] = {} end
+			table.insert( player_record[ "sentence_list" ], {
+				jailer = name,
+				reason = reason,
+				severity = jails.sentences[ name ].severity,
+				timestamp = jails.sentences[ name ].timestamp,
+				sentence_length = sentence_length,
+			})
 
 			player_record[ "sentence_length" ] = sentence_length
-			player_record[ "sentence_start_time" ] = jails.sentences[ name ].timestamp
+		--	player_record[ "sentence_start_time" ] = jails.sentences[ name ].timestamp
 			player_record[ "total_jailed_time" ] = total_jailed_time + sentence_length
-			player_record[ "time_jailed" ] = time_jailed + 1
+			player_record[ "time_jailed" ] = time_jailed
+
+		--	jail_cmd.func( "singleplayer" )
+			--at the end
+			
+			local playername_tmp = jails.sentences[ name ].jailed  -- TODO cleanup this part, just quick for testing
+			
+			if player_record[ "definitive_ban" ] then
+				jails.sentences[ name ] = nil
+				minetest.ban_player( playername_tmp )
+				return playername_tmp .. " was banned"
+			else
+				jails.sentences[ name ] = nil
+				return jails:jail( playername_tmp )
+			end
 	end,
 	})
 end

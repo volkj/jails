@@ -16,16 +16,22 @@ function jails:jail(playerName, jailName)
 	if player then
 		pos = player:getpos()
 		player:setpos(jail.pos)
-		--if datastorage
-		-- set player sentence_started = true
+		if jails.datastorage then
+			local player_record = datastorage.get( playerName, "jails" )
+			player_record[ "sentence_started" ] = true
+			player_record[ "sentence_start_time" ] = os.time()
+		end
 		if jails.announce then
 			minetest.chat_send_all(playerName.." has been jailed!")
 		else
 			minetest.chat_send_player(playerName, "You have been jailed.")
 		end
 	else
-		--if datastorage
-		--set player sentence_started = false
+		if jails.datastorage then
+			local player_record = datastorage.get( playerName, "jails" )
+			player_record[ "sentence_started" ] = false
+		--	player_record[ "sentence_start_time" ] = os.time()
+		end
 		message = "That player is not online right now."
 				.."  They will be jailed when they next connect."
 	end
@@ -44,6 +50,12 @@ function jails:unjail(playerName)
 	for name, jail in pairs(self.jails) do
 		local playerData = jail.captives[playerName]
 		if playerData then
+			if jails.datastorage then
+				local player_record = datastorage.get( playerName , "jails" )
+				player_record[ "sentence_started" ] = false
+				player_record[ "sentence_start_time" ] = false
+				player_record[ "sentence_length" ] = false
+			end
 			self:release(playerName, playerData)
 			jail.captives[playerName] = nil
 			return self:save()
